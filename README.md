@@ -1,5 +1,5 @@
 # Files 2 SQLite (F2S)
-Converts all files in one directory into a sqlite database table where the files are blob entries and their names form the primary key or an optional column.
+Converts all files in one directory into a SQLite database table where the files are blob entries and their names form the primary key or an optional column. Allows foreign key index extraction of all single processed files.
 
 # Run
 ## Jar
@@ -15,6 +15,7 @@ Run:
 ```
 java -jar f2s.jar -h
 ```
+or look at the [commands array in the source code of F2S.java](https://github.com/ManuelTS/f2s/blob/master/src/F2S.java#L14).
 
 # Build
 Run
