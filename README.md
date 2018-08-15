@@ -15,7 +15,7 @@ Run:
 ```
 java -jar f2s.jar -h
 ```
-or look at the [commands array in the source code of F2S.java](https://github.com/ManuelTS/f2s/blob/master/src/F2S.java#L14).
+or look at the [commands array in the source code of F2S.java](https://github.com/ManuelTS/f2s/blob/master/src/at/mts/f2s/F2S.java#L19).
 
 # Build
 Run

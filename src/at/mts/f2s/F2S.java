@@ -69,12 +69,14 @@ public class F2S {
 	 * @throws URISyntaxException */
 	private void process() throws IOException, SQLException, URISyntaxException {
 		System.out.println("F2S: Database creation started.");
-		String path = F2S.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath().replace("/f2s.jar", "");
+		String path = F2S.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath().replace("f2s.jar", "");
 
 		if(commands[11] == null)//-i
 			commands[11] = path;
 		else if(commands[11].startsWith("./"))
 			commands[11] = path + commands[11].substring(1, commands[11].length());
+		else if(commands[11].startsWith("../"))
+			commands[11] = path + commands[11];
 
 		if(commands[14] == null)//-o
 			commands[14] = path + "/f2s.db";
