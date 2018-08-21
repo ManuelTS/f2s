@@ -32,7 +32,8 @@ public class F2S {
 			/*33*/"-3", "Data (blob) column name. If the name is null, no blob entries are generated. Default: data.", "data",
 			/*36*/"-f", "Find in the copied byte stream the given string and extract everything into an integer column where its name is denoted by -4. Data extraction is done until the string of -u is found which must be set too, otherwise -f and -u are ignored. Default: null.", null,
 			/*39*/"-u", "Until, terminaing string for -f which must be set too, otherwise -f and -u are ignored. Default: null.", null,
-			/*42*/"-4", "Column name of the found results inside he bye stream. Default: link.", "link"
+			/*42*/"-4", "Column name of the found results inside he bye stream. Default: link.", "link",
+			/*45*/"-e", "Replaces any characters in the filename with the given numerical argument to generate a number. If specified, he -2 column will be an integer. Default: null", null
 	};
 
 	/**Files to SQLite (F2S). Converts all files in one directory into a sqlite database table where the files are blob entries and their names form the primary key or an optional column.
@@ -130,6 +131,7 @@ public class F2S {
 
 		int pk = 0;
 		final boolean generateBlob = commands[35] != null; // -3, if blob generation is wanted
+		final boolean fileNameIsText = commands[47] == null; // -e
 		commands[5] = "INSERT INTO " + commands[5] + commands[8] + " VALUES " + commands[29]; // Insert statment executed for each single file found
 
 		for (File f : new File(commands[11]).listFiles()) { //Slow but save and less memory consumption
@@ -145,7 +147,11 @@ public class F2S {
 			byte[] bytes = new byte[(int) f.length()]; // For fast reading, could be a  problem on bigger files, Integer.Maxvalue...
 			String filename = f.getName();
 
-			filename = filename.substring(0, filename.lastIndexOf("."));
+			filename = filename.substring(0, filename.lastIndexOf(".")).replaceAll(commands[2], "");
+			
+			if(!fileNameIsText)
+				filename = filename.replaceAll("[a-zA-Z]", commands[47]);
+				
 			fis.read(bytes, 0, bytes.length);
 			fis.close();
 
@@ -153,7 +159,7 @@ public class F2S {
 				find(bytes); // result stored in commands[17]
 
 			if(negativePK) { //-p = -1 use filename as PK, extra PK column otherwise
-				ps.setInt(1, Integer.parseInt(filename.replaceAll(commands[2], "")));
+				ps.setInt(1, Integer.parseInt(filename));
 
 				if(nothing2Find && generateBlob)// -3, if blob generation is wanted
 					ps.setBytes(2, bytes);
@@ -166,7 +172,11 @@ public class F2S {
 			}
 			else {
 				ps.setInt(1, pk++);
-				ps.setString(2, filename.replaceAll(commands[2], ""));
+				
+				if(fileNameIsText) // -e, text column
+					ps.setString(2, filename);
+				else // -e, integer column
+					ps.setInt(2, Integer.parseInt(filename));
 
 				if(nothing2Find && generateBlob) // -3, if blob generation is wanted
 					ps.setBytes(3, bytes);
@@ -231,9 +241,10 @@ public class F2S {
 	 */
 	private void createTableCreationNames(boolean negativePK, boolean nothing2Find) {
 		commands[8] = "(" + commands[29] + " INTEGER PRIMARY KEY NOT NULL" + SQL_SUFFIX;
-
+		String columnType = commands[47] == null ? " TEXT " : " INTEGER "; 
+				
 		if(!negativePK)//-p > -1 use extra filename column
-			commands[8] += commands[32] + " TEXT NOT NULL" + SQL_SUFFIX;
+			commands[8] += commands[32] + columnType + "NOT NULL" + SQL_SUFFIX;
 
 		if(!nothing2Find)// -f and -u are filled, use -4 as foreigen key column name
 			commands[8] += commands[44] + " INTEGER NOT NULL" + SQL_SUFFIX;
@@ -284,7 +295,7 @@ public class F2S {
 		StringBuilder sb = new StringBuilder((help?"Help":"Status")+ " of " + this.getClass().getSimpleName() + ":\n");
 
 		for(int i = 0; i+2 < commands.length;i+=3)
-			sb.append(String.format("%2s\n  %s\n\n", commands[i], commands[i+(help?1:2)]));
+			sb.append(String.format("  %2s\n    %s\n\n", commands[i], commands[i+(help?1:2)]));
 
 		System.out.println(sb.toString());
 		sb.setLength(0);
