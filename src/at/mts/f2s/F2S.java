@@ -225,13 +225,13 @@ public class F2S {
 	 * @param nothing2Find is true if -f and -u are not null, false otherwise.
 	 */
 	private void createInsertTableNames(boolean negativePK, boolean nothing2Find) {
-		String findColumn = nothing2Find ? "" : commands[44]; // -4, column name of the extracted value between -f and -u
+		String findColumn = nothing2Find ? "" : SQL_SUFFIX + commands[44]; // -4, column name of the extracted value between -f and -u
 		String blobColumn = commands[35] == null ? "" : SQL_SUFFIX + commands[35]; // -3, if null no column
 
 		if(negativePK)//-p = -1 use filename as PK, extra PK column otherwise
-			commands[8] = "(" + commands[29] + SQL_SUFFIX + findColumn + blobColumn + ")";
+			commands[8] = "(" + commands[29] + findColumn + blobColumn + ")";
 		else
-			commands[8] = "(" + commands[29] + SQL_SUFFIX + commands[32] + SQL_SUFFIX + findColumn + blobColumn + ")";
+			commands[8] = "(" + commands[29] + SQL_SUFFIX + commands[32] + findColumn + blobColumn + ")";
 	}
 
 	/**
